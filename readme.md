@@ -4,6 +4,32 @@ With DB you can very easily save, restore, and archive snapshots of your databas
 supports connecting to different database servers (for example a local development server and a staging or 
 production server) and allows you to load a database dump from one environment into another environment. 
 
+> For now, this is for MySQL only, but it could be extended to be used with other database systems as well.
+
+## Table of Contents
+- [Introduction](#introduction)
+- [Examples](#examples)
+- [Installation](#installation)
+  * [Additional configuration / different port or socket](#additional-configuration--different-port-or-socket)
+- [Available commands](#available-commands)
+  * [db init](#db-init)
+  * [db save](#db-save)
+  * [db load](#db-load)
+  * [db remove](#db-remove)
+  * [db server](#db-server)
+    + [db server add](#db-server-add)
+    + [db server remove](#db-server-remove)
+    + [db server list](#db-server-list)
+  * [db export](#db-export)
+  * [db import](#db-import)
+  * [db nuke](#db-nuke)
+  * [db log](#db-log)
+  * [db show](#db-show)
+  * [db structure](#db-structure)
+  * [db change](#db-change)
+    + [db change charset](#db-change-charset)
+    + [db change wordpress](#db-change-wordpress)
+  * [db test](#db-test)
 
 ## Examples 
 
@@ -56,7 +82,15 @@ See the full [list of available commands](#available-commands) to get a complete
 
 ## Installation 
 
-For now, you can only install ```db``` by cloning this repository:
+### MacOS
+On MacOS, you can install ```db``` with the [HomeBrew package manager](https://brew.sh/):
+
+```shell
+$ brew install db-vcs
+```
+
+### Linux / others
+On other operating systems, you can install ```db``` by cloning the repository:
 
 ```shell
 $ git clone https://www.github.com/infostreams/db
@@ -84,6 +118,32 @@ fatal: Not a db repository (or any of the parent directories). Please run 'db in
 So, to really get started, go to a directory where you have a project that uses a database, and type 
 [```db init```](#db-init). This will start the process of setting up your database connection details, after which 
 the following commands will be available to you.
+
+### Additional configuration / different port or socket
+
+You can provide additional configuration for the MySQL connection by providing them in 
+[the options file](https://dev.mysql.com/doc/refman/5.7/en/option-files.html) that can be found at 
+```.db/<alias>/config/credentials.cnf```. Here you can provide a different port number or you can specify a socket
+to connect through, for example
+
+```ini
+[client]
+user = root
+password =
+host = 127.0.0.1
+port = 3307
+```
+
+to connect to a MySQL database on a port 3307 instead of the standard 3306, or
+
+```ini
+[client]
+user = root
+password =
+socket = /var/run/mysqld/mysql.sock
+```
+
+to connect to MySQL through a socket file located at ```/var/run/mysqld/mysql.sock```.
 
 ## Available commands 
 
@@ -138,9 +198,9 @@ $ db init
 > 
 > Please provide the connection details for the database 
 > Server alias []: 
-> Connection type, e.g. direct, ssh, or phpmyadmin []: 
+> Connection type, e.g. direct, or ssh []: 
 > SSH login, e.g. user@hostname.com []: 
-> Please provide the database host. For connection types SSH and phpMyAdmin, this is probably 127.0.0.1. 
+> Please provide the database host. For connection types SSH and direct, this is probably 127.0.0.1. 
 > Database host [127.0.0.1]: 
 > Username [root]: 
 > Password []: 
@@ -151,8 +211,6 @@ $ db init
 
 The password for your connection will be stored in plain text, in a file that only the current user has read-access to 
 (file mode 0600). Make sure to not commit this file (```.db/<server alias>/config/credentials.cnf```) to source control!
-
-The text mentions connection type ```phpmyadmin```, but it doesn't actually work. Don't use it.
 
 If you want to add a remote server, you need to have ssh access to it. It is best if you have setup passwordless access,
 otherwise it will ask you for your password every time you interact with the remote server. 
@@ -257,9 +315,9 @@ $ db server add
 > Please provide the connection details for the database 
 > 
 > Server alias []: production 
-> Connection type, e.g. direct, ssh, or phpmyadmin []: ssh 
+> Connection type, e.g. direct, or ssh []: ssh 
 > SSH login, e.g. user@hostname.com []: account@server.com
-> Please provide the database host. For connection types SSH and phpMyAdmin, this is probably 127.0.0.1. 
+> Please provide the database host. For connection types SSH and direct, this is probably 127.0.0.1. 
 > Database host [127.0.0.1]: 127.0.0.1 
 > Username [root]: user 
 > Password []: password
@@ -269,8 +327,6 @@ $ db server add
 ``` 
 
 This would have added a new server with the alias **production**, which you can then use to save and load snapshots. 
-
-The text mentions connection type ```phpmyadmin```, but it doesn't actually work. Don't use it.
 
 If you want to add a remote server, you need to have ssh access to it. It is best if you have setup passwordless access,
 otherwise it will ask you for your password every time you interact with the remote server. 
